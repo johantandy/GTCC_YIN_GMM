@@ -117,7 +117,7 @@ public class GTCC {
 	}
 	
 	//GAMMATONE FILTER BANK 5nd Step GTCC
-	public static ArrayList<Double> GammatoneFilterBank(ArrayList<Double> source,double fs) {
+	public static ArrayList<Double> GammatoneFilterBank(double fs) {
 		int low_freq=100;
 		int high_freq=44100/4;
 		int numfbank = 64;
@@ -237,10 +237,11 @@ public class GTCC {
 			
 			
 			
-			//System.out.println(gain.get(i-1));
+			
+			//System.out.println("split");
 			
 
-			//System.out.println(gain.size());
+			
 			
 			allfilts.add( Collections.frequency(erb_point, erb_point.get(i-1)));
 			
@@ -267,7 +268,7 @@ public class GTCC {
 		}
 		//counting
 		//System.out.println(gain.size());
-		double sumOfX = 0;
+		/*double sumOfX = 0;
 		for (int j = 0; j < 1; j++) {
 			//System.out.println(source.get(j));
 			for (int j2 = 0; j2 < gain.size(); j2++) {
@@ -282,35 +283,81 @@ public class GTCC {
 			//System.out.println(gtResponse.size());
 			//System.out.println(gtResponse);
 			//System.out.println("space");
-		}
+		}*/
 		
-		for (int j = 0; j < fcoefs.size(); j++) {
+	/*	for (int j = 0; j < fcoefs.size(); j++) {
 			for (int j2 = 0; j2 < fcoefs.get(0).size(); j2++) {
 				System.out.println(fcoefs.get(j).get(j2));
 				
 			}
 			System.out.println("space");
 			
-		}
+		}*/
 		
 		//System.out.println(erb_point.get(63));
-		
+	/*	for (int j = 0; j < gain.size(); j++) {
+			System.out.println(gain.get(j));
+		}
+		*/
 		return gain;
 		
-	}
-	
-	public static void EqualLoudnessCurve(ArrayList<Double> centre_frequecy) {
-		
-		
 		
 	}
 	
+	public ArrayList<Double> countXm(ArrayList<Double> frequencyValue, ArrayList<Double> GTFIlterBank) {
+		double sumOfX = 0;
+		ArrayList<Double> xm = new ArrayList<>();
+		for (int j = 0; j < gain.size(); j++) {
+			//System.out.println(source.get(j));
+			for (int j2 = 0; j2 < frequencyValue.size()/2-1; j2++) {
+				
+				
+				//System.out.println(source.size());
+				sumOfX+=(frequencyValue.get(j2)*GTFIlterBank.get(j));
+			}
+			xm.add(sumOfX);
+			sumOfX=0;
+			//System.out.println(sumOfX);
+			//System.out.println(gtResponse.size());
+			//System.out.println(gtResponse);
+			//System.out.println("space");
+		}
+		return xm;
+	}
+	
+	public ArrayList<Double> EqualLoudnessCurve(ArrayList<Double> f) {
+		ArrayList<Double> e = new ArrayList<>();
+		ArrayList<Double> eql = new ArrayList<>();
+		for (int j = 0; j < f.size(); j++) {
+			double wtemp = 2*Math.PI*(double)f.get(j);
+			e.add(((Math.pow(wtemp, 2)+56.8*Math.pow(10, 6)*Math.pow(wtemp, 4))/
+					Math.pow((Math.pow(wtemp, 2)+6.3*Math.pow(10, 6)),2)*(Math.pow(wtemp, 2)+0.38*Math.pow(10, 9)
+							)*(Math.pow(wtemp, 6)+9.58*Math.pow(10, 26))));
+			//System.out.println(e.get(j));
+			eql.add(e.get(j)*f.get(j));
+			//System.out.println(eql.get(j));
+		}
+		return eql;
+			
+	}
+	
+	public ArrayList<Double> LogaritmhmicCompression(ArrayList<Double> xme ){
+		ArrayList<Double> xln = new ArrayList<>();
+		for (int i = 0; i < xme.size(); i++) {
+			xln.add(Math.log(xme.get(i)));
+			//System.out.println(xln.get(i));
+		}
+		
+		return xln;
+		
+	}
 	
 	
 	
 	
 	
-	public double[][] GetFeatureVector(double[] data, double alpha, int size, int overlap){
+	
+	public ArrayList<ArrayList<Double>> GetFeatureVector(double[] data, double alpha, int size, int overlap){
 		double[] dcRemoval = DCRemoval(data);
 		double[] preEmphasized = PreEmphasize(dcRemoval,alpha);
 		//ArrayList<double[]> frame = FrameBlocking(preEmphasized,frameSize);
@@ -319,8 +366,13 @@ public class GTCC {
 		ArrayList<double[]> result = new ArrayList<double[]>();
 		double[][] gtccFeature = new double[frame.size()][];
 		double[][] framedSignal = new double[frame.size()][];
-		ArrayList<Double> GTFIlterBank = new ArrayList<>();
+		ArrayList<Double> GTFIlterBank = GammatoneFilterBank(16000);
+		ArrayList<ArrayList<Double>> xm = new ArrayList<>();
+		ArrayList<ArrayList<Double>> equalloudness = new ArrayList<>();
+		ArrayList<ArrayList<Double>> logarithmicCompression = new ArrayList<>();
+		ArrayList<ArrayList<Double>> discreteCosineTransform = new ArrayList<>();
 		System.out.println(frame.size());
+		DCT dct = new DCT(12, 64);
 		for (int i = 0; i < frame.size(); i++) {
 			
 			double[] window = Windowing (frame.get(i),size);
@@ -356,14 +408,38 @@ public class GTCC {
 			}
 			
 			
+			xm.add(countXm(frequencyValue, GTFIlterBank));
 			
-			
-			
-			GammatoneFilterBank(frequencyValue, 16000);
-			
+				equalloudness.add(EqualLoudnessCurve(xm.get(i)));
+				logarithmicCompression.add(LogaritmhmicCompression(equalloudness.get(i)));
+				discreteCosineTransform.add(dct.performDCT(logarithmicCompression.get(i)));
+				/*System.out.println(discreteCosineTransform.get(i));
+				System.out.println("space");*/
 			
 		}
-		return null;
+		
+
+		/*for (int i = 4; i < 5; i++) {
+			for (int j = 0; j < discreteCosineTransform.get(0).size(); j++) {
+				System.out.println(discreteCosineTransform.get(i).get(j));;	
+			}
+			
+		}*/
+		
+		/*System.out.println(discreteCosineTransform.get(0).size());
+		for (int i = 4; i < 5; i++) {
+			for (int j = 0; j < logarithmicCompression.get(0).size(); j++) {
+			System.out.println(logarithmicCompression.get(i).get(j));	
+			}
+		}*/
+		
+		
+
+		
+	
+	
+		
+		return discreteCosineTransform;
 	}
 	
 	public static void main(String[] args) {
@@ -375,11 +451,11 @@ public class GTCC {
 			datasample[i]=data[i];
 			//System.out.println(datasample[i]);
 		}
-		System.out.println("oke");
+		//System.out.println("oke");
 		GTCC gtcc = new GTCC();
-		gtcc.GetFeatureVector(datasample, 0.9, 4, 2);
+		System.out.println(gtcc.GetFeatureVector(data, 0.9, 4000, 16000));
 		
-		/*for (int i = 2; i <=64; i++) {
+		/*for (int i = 1; i <=64; i++) {
 			System.out.println(i);
 		}*/
 		/*XYSeries xys = new XYSeries("plot audio");
