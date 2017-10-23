@@ -23,8 +23,8 @@ public class XyChart extends JFrame {
 		// TODO Auto-generated constructor stub
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(
 		         chartTitle ,
-		         "time" ,
-		         "Sample" ,
+		         "Frame" ,
+		         "Amplitude" ,
 		         dataSet ,
 		         PlotOrientation.VERTICAL ,
 		         true , true , false);

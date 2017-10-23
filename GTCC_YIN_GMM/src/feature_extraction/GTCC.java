@@ -1,5 +1,9 @@
 package feature_extraction;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,8 +11,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.management.monitor.GaugeMonitorMBean;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
+import org.fti.untar.topic.speech.yin.Yin;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
@@ -357,7 +363,7 @@ public class GTCC {
 	
 	
 	
-	public ArrayList<ArrayList<Double>> GetFeatureVector(double[] data, double alpha, int size, int overlap){
+	public double [] GetFeatureVector(double[] data, double alpha, int size, int overlap){
 		double[] dcRemoval = DCRemoval(data);
 		double[] preEmphasized = PreEmphasize(dcRemoval,alpha);
 		//ArrayList<double[]> frame = FrameBlocking(preEmphasized,frameSize);
@@ -413,50 +419,103 @@ public class GTCC {
 				equalloudness.add(EqualLoudnessCurve(xm.get(i)));
 				logarithmicCompression.add(LogaritmhmicCompression(equalloudness.get(i)));
 				discreteCosineTransform.add(dct.performDCT(logarithmicCompression.get(i)));
-				/*System.out.println(discreteCosineTransform.get(i));
-				System.out.println("space");*/
+				System.out.println(discreteCosineTransform.get(i));
+				System.out.println(" ");
 			
 		}
+		double[] gtccFeatures = new double[discreteCosineTransform.get(0).size()*discreteCosineTransform.size()];
 		
-
-		/*for (int i = 4; i < 5; i++) {
-			for (int j = 0; j < discreteCosineTransform.get(0).size(); j++) {
-				System.out.println(discreteCosineTransform.get(i).get(j));;	
+		int iterator = 0;
+		for (int i = 0; i < frame.size(); i++) {
+			for (int j = 0; j < discreteCosineTransform.get(i).size(); j++) {
+				//System.out.println();
+				gtccFeatures[iterator++]=discreteCosineTransform.get(i).get(j);
 			}
-			
-		}*/
-		
-		/*System.out.println(discreteCosineTransform.get(0).size());
-		for (int i = 4; i < 5; i++) {
-			for (int j = 0; j < logarithmicCompression.get(0).size(); j++) {
-			System.out.println(logarithmicCompression.get(i).get(j));	
-			}
-		}*/
+		}
 		
 		
-
-		
-	
-	
-		
-		return discreteCosineTransform;
+		return gtccFeatures;
 	}
+	
+	
+	public static void write(PrintStream printStream, String... values) throws Exception {
+
+		  try{                 
+		     for (String value : values){
+		       printStream.println(value);
+		     }
+		     printStream.flush();
+		   }
+		    catch (Exception e){
+		       // handling exception
+		   }       
+		 }
 	
 	public static void main(String[] args) {
 	//GammatoneFilterBank(null, 16000);
 		String Sound1 = "C:\\Users\\extre\\Desktop\\heart audio\\Atraining_murmur\\Atraining_murmur\\201101051104.wav";
 		double[] data = StdAudio.read(Sound1);
-		double [] datasample=new double[12];
-		for (int i = 0; i <=11; i++) {
+		double [] datasample=new double[301];
+		for (int i = 0; i <=300; i++) {
 			datasample[i]=data[i];
 			//System.out.println(datasample[i]);
 		}
+		
+		/*PrintStream printStream;
+		try {
+			printStream = new PrintStream(new File("output3.txt"));
+			 // hook for closing the stream 
+		    Runtime.getRuntime().addShutdownHook(new Thread(printStream::close));
+		     // writing
+		    write(printStream,Arrays.toString(datasample));  
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	   */
+		/*Yin yin = new Yin(16000);
+		try {
+			yin.main(Sound1);
+		} catch (UnsupportedAudioFileException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
 		//System.out.println("oke");
 		GTCC gtcc = new GTCC();
-		System.out.println(gtcc.GetFeatureVector(data, 0.9, 4000, 16000));
+		double[] dataa = gtcc.GetFeatureVector(data, 0.9, 4000, 16000);
 		
-		/*for (int i = 1; i <=64; i++) {
-			System.out.println(i);
+		ArrayList<Float> pitch1 = new ArrayList<Float>();
+		ArrayList<Float> timesuji = new ArrayList<Float>();
+		Yin yin = new Yin(16000);
+		try {
+			yin.main(Sound1);
+		} catch (UnsupportedAudioFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		pitch1=yin.getPitchs();
+		timesuji=yin.getTimes();
+		System.out.println(pitch1.size());
+		for (int i = 0; i < pitch1.size(); i++) {
+			//System.out.println(timesuji.get(i)+"  "+pitch1.get(i));
+		}
+		System.out.println("selesai");
+		/*for (int i = 0; i < dataa.length; i++) {
+			System.out.println(dataa[i]);
+		}*/
+		
+		//GMM gmm = new GMM();
+		//gmm.main(gtcc.GetFeatureVector(data, 0.9, 4000, 16000));
+		
+	/*	for (int i = 1; i <=195; i++) {
+			Syst	em.out.println(i);
 		}*/
 		/*XYSeries xys = new XYSeries("plot audio");
 		for (int i = 0; i < data.length; i++) {
@@ -469,8 +528,8 @@ public class GTCC {
 		chart.pack();
 		RefineryUtilities.centerFrameOnScreen(chart);
 		chart.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		chart.setVisible(true);
-		GTCC gtcc = new GTCC();
+		chart.setVisible(true);*/
+		/*GTCC gtcc = new GTCC();
 		gtcc.GetFeatureVector(data, 0.9, 4000, 16000);*/
 		
 		/*Complex c = new Complex(0, 2);
