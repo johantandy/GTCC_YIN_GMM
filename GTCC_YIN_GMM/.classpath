@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math3-3.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/com.mysql.jdbc_5.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/Jama-1.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
