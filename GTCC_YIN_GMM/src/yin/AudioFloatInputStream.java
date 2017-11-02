@@ -1,4 +1,4 @@
-package org.fti.untar.topic.speech.yin;
+package yin;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

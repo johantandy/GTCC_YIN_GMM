@@ -14,12 +14,12 @@ import javax.management.monitor.GaugeMonitorMBean;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
-import org.fti.untar.topic.speech.yin.Yin;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
 import plot.XyChart;
+import yin.Yin;
 
 public class GTCC {
 	private static final double MAX_16_BIT = Short.MAX_VALUE;
@@ -419,8 +419,8 @@ public class GTCC {
 				equalloudness.add(EqualLoudnessCurve(xm.get(i)));
 				logarithmicCompression.add(LogaritmhmicCompression(equalloudness.get(i)));
 				discreteCosineTransform.add(dct.performDCT(logarithmicCompression.get(i)));
-				System.out.println(discreteCosineTransform.get(i));
-				System.out.println(" ");
+				//System.out.println(discreteCosineTransform.get(i));
+				//System.out.println(" ");
 			
 		}
 		double[] gtccFeatures = new double[discreteCosineTransform.get(0).size()*discreteCosineTransform.size()];
@@ -453,13 +453,19 @@ public class GTCC {
 	
 	public static void main(String[] args) {
 	//GammatoneFilterBank(null, 16000);
-		String Sound1 = "C:\\Users\\extre\\Desktop\\heart audio\\Atraining_murmur\\Atraining_murmur\\201101051104.wav";
+		String Sound1 = "C:\\Users\\extre\\Desktop\\heart audio\\Atraining_murmur\\Atraining_murmur\\201102051443.wav";
 		double[] data = StdAudio.read(Sound1);
 		double [] datasample=new double[301];
 		for (int i = 0; i <=300; i++) {
 			datasample[i]=data[i];
 			//System.out.println(datasample[i]);
 		}
+		
+		
+		
+		
+		
+		
 		
 		/*PrintStream printStream;
 		try {
@@ -503,8 +509,12 @@ public class GTCC {
 		pitch1=yin.getPitchs();
 		timesuji=yin.getTimes();
 		System.out.println(pitch1.size());
+		System.out.println("MULAI");
 		for (int i = 0; i < pitch1.size(); i++) {
-			//System.out.println(timesuji.get(i)+"  "+pitch1.get(i));
+			if (pitch1.get(i)!=-1.0) {
+
+				System.out.println(timesuji.get(i)+"  "+pitch1.get(i));	
+			}
 		}
 		System.out.println("selesai");
 		/*for (int i = 0; i < dataa.length; i++) {

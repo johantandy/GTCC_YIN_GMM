@@ -1,4 +1,4 @@
-package org.fti.untar.topic.speech.yin;
+package yin;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,11 +91,11 @@ public class Yin {
 			
 		}
 		
-		System.out.println(yinBuffer.length);
+		/*System.out.println(yinBuffer.length);
 		
 		for (int i = 0; i < yinBuffer.length; i++) {
 			System.out.println(yinBuffer[i]);
-		}
+		}*/
 	}
 
 	/**

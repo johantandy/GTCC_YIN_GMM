@@ -1,4 +1,4 @@
-package org.fti.untar.topic.speech.yin;
+package yin;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -23,7 +23,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.fti.untar.topic.speech.yin.Yin.DetectedPitchHandler;
+import yin.Yin.DetectedPitchHandler;
 
 //Referenced classes of package detector:
 //         PaintComponent

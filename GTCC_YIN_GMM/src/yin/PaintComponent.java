@@ -1,4 +1,4 @@
-package org.fti.untar.topic.speech.yin;
+package yin;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
